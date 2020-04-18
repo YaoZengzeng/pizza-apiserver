@@ -80,6 +80,8 @@ const (
 
 // Config is a structure used to configure a GenericAPIServer.
 // Its members are sorted roughly in order of importance for composers.
+// Config是一个结构用于构建一个GenericAPIServer
+// 它的成员基本是以composers的重要性来构建的
 type Config struct {
 	// SecureServing is required to serve https
 	SecureServing *SecureServingInfo
@@ -96,6 +98,7 @@ type Config struct {
 	LoopbackClientConfig *restclient.Config
 	// RuleResolver is required to get the list of rules that apply to a given user
 	// in a given namespace
+	// RuleResolver用于获取一系列的rules，应用到给定user的给定namespace
 	RuleResolver authorizer.RuleResolver
 	// AdmissionControl performs deep inspection of a given request (including content)
 	// to set values and determine whether its allowed
@@ -191,11 +194,14 @@ type Config struct {
 }
 
 type RecommendedConfig struct {
+	// RecommendedConfig包括了基本的Config
 	Config
 
 	// SharedInformerFactory provides shared informers for Kubernetes resources. This value is set by
 	// RecommendedOptions.CoreAPI.ApplyTo called by RecommendedOptions.ApplyTo. It uses an in-cluster client config
 	// by default, or the kubeconfig given with kubeconfig command line flag.
+	// SharedInformerFactory提供shared informers用于Kubernetes resources，value由RecommendedOptions.ApplyTo调用的
+	// RecommendedOptions.CoreAPI.ApplyTo来设置，默认使用in-cluster client config，或者由kubeconfig command line设置的kubeconfig
 	SharedInformerFactory informers.SharedInformerFactory
 
 	// ClientConfig holds the kubernetes client configuration.
@@ -253,6 +259,7 @@ type AuthorizationInfo struct {
 func NewConfig(codecs serializer.CodecFactory) *Config {
 	return &Config{
 		Serializer:                  codecs,
+		// 默认的一些handler chain
 		BuildHandlerChainFunc:       DefaultBuildHandlerChain,
 		HandlerChainWaitGroup:       new(utilwaitgroup.SafeWaitGroup),
 		LegacyAPIGroupPrefixes:      sets.NewString(DefaultLegacyAPIPrefix),
@@ -291,6 +298,7 @@ func NewConfig(codecs serializer.CodecFactory) *Config {
 }
 
 // NewRecommendedConfig returns a RecommendedConfig struct with the default values
+// NewRecommendedConfig返回一个RecommendedConfig的默认值
 func NewRecommendedConfig(codecs serializer.CodecFactory) *RecommendedConfig {
 	return &RecommendedConfig{
 		Config: *NewConfig(codecs),
@@ -423,12 +431,15 @@ func (c *Config) Complete(informers informers.SharedInformerFactory) CompletedCo
 // Complete fills in any fields not set that are required to have valid data and can be derived
 // from other fields. If you're going to `ApplyOptions`, do that first. It's mutating the receiver.
 func (c *RecommendedConfig) Complete() CompletedConfig {
+	// 用SharedInformerFactory作为参数传入
 	return c.Config.Complete(c.SharedInformerFactory)
 }
 
 // New creates a new server which logically combines the handling chain with the passed server.
 // name is used to differentiate for logging. The handler chain in particular can be difficult as it starts delgating.
 // delegationTarget may not be nil.
+// New创建一个新的server，将handling chain和传入的server进行组合，name主要在logging的时候用于区分
+// 因为开始delegating，handler chain可能有些困难，delegationTarget可能不是nil
 func (c completedConfig) New(name string, delegationTarget DelegationTarget) (*GenericAPIServer, error) {
 	if c.Serializer == nil {
 		return nil, fmt.Errorf("Genericapiserver.New() called with config.Serializer == nil")
@@ -440,6 +451,7 @@ func (c completedConfig) New(name string, delegationTarget DelegationTarget) (*G
 	handlerChainBuilder := func(handler http.Handler) http.Handler {
 		return c.BuildHandlerChainFunc(handler, c.Config)
 	}
+	// 创建APIServer handler
 	apiServerHandler := NewAPIServerHandler(name, c.Serializer, handlerChainBuilder, delegationTarget.UnprotectedHandler())
 
 	s := &GenericAPIServer{
@@ -490,6 +502,7 @@ func (c completedConfig) New(name string, delegationTarget DelegationTarget) (*G
 		}
 	}
 
+	// 将delegation target的PostStartHooks()以及PreShutdownHooks都加入server中
 	for k, v := range delegationTarget.PostStartHooks() {
 		s.postStartHooks[k] = v
 	}
@@ -521,11 +534,14 @@ func (c completedConfig) New(name string, delegationTarget DelegationTarget) (*G
 			continue
 		}
 
+		// 将delegationTarget加入到healthz
 		s.healthzChecks = append(s.healthzChecks, delegateCheck)
 	}
 
 	s.listedPathProvider = routes.ListedPathProviders{s.listedPathProvider, delegationTarget}
 
+	// 注册API
+	// 将Config作为参数传入
 	installAPI(s, c.Config)
 
 	// use the UnprotectedHandler from the delegation target to ensure that we don't attempt to double authenticator, authorize,

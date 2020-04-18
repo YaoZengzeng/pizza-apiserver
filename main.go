@@ -34,6 +34,7 @@ func main() {
 	logs.InitLogs()
 	defer logs.FlushLogs()
 
+	// 遇到SIGINT或者SIGKILL，stop channel就会被关闭
 	stopCh := genericapiserver.SetupSignalHandler()
 	options := server.NewCustomServerOptions()
 	cmd := server.NewCommandStartCustomServer(options, stopCh)

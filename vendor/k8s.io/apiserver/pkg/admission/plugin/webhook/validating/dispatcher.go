@@ -139,6 +139,7 @@ func (d *validatingDispatcher) callHook(ctx context.Context, h *v1beta1.Webhook,
 		}
 	}
 	if response.Response.Allowed {
+		// 如果Response.Allowed为true，则直接返回，表明校验通过
 		return nil
 	}
 	return webhookerrors.ToStatusErr(h.Name, response.Response.Result)

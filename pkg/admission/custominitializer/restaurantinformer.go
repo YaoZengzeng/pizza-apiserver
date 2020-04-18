@@ -37,6 +37,7 @@ func New(informers informers.SharedInformerFactory) restaurantInformerPluginInit
 
 // Initialize checks the initialization interfaces implemented by a plugin
 // and provide the appropriate initialization data
+// Initialize检查一个plugin实现的initialization interfaces并且提供合适的初始化数据
 func (i restaurantInformerPluginInitializer) Initialize(plugin admission.Interface) {
 	if wants, ok := plugin.(WantsRestaurantInformerFactory); ok {
 		wants.SetRestaurantInformerFactory(i.informers)

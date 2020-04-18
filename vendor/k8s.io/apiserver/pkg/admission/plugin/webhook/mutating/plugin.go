@@ -32,6 +32,7 @@ const (
 // Register registers a plugin
 func Register(plugins *admission.Plugins) {
 	plugins.Register(PluginName, func(configFile io.Reader) (admission.Interface, error) {
+		// 初始化webhook plugin
 		plugin, err := NewMutatingWebhook(configFile)
 		if err != nil {
 			return nil, err
@@ -53,6 +54,7 @@ func NewMutatingWebhook(configFile io.Reader) (*Plugin, error) {
 	handler := admission.NewHandler(admission.Connect, admission.Create, admission.Delete, admission.Update)
 	p := &Plugin{}
 	var err error
+	// 一个通用的webhook实现
 	p.Webhook, err = generic.NewWebhook(handler, configFile, configuration.NewMutatingWebhookConfigurationManager, newMutatingDispatcher(p))
 	if err != nil {
 		return nil, err
@@ -70,6 +72,7 @@ func (a *Plugin) ValidateInitialization() error {
 }
 
 // Admit makes an admission decision based on the request attributes.
+// Admit基于请求的request attributes做admission decision
 func (a *Plugin) Admit(attr admission.Attributes, o admission.ObjectInterfaces) error {
 	return a.Webhook.Dispatch(attr, o)
 }

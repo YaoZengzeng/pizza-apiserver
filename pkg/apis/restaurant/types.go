@@ -18,10 +18,14 @@ package restaurant
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+// Internal types
+// APIServer的内部类型
+
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // Pizza specifies an offered pizza with toppings.
+// 内部类型没有json tag和protobuf tag
 type Pizza struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta

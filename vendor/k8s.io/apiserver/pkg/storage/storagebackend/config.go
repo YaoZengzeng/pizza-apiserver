@@ -47,6 +47,7 @@ type Config struct {
 	// Prefix is the prefix to all keys passed to storage.Interface methods.
 	Prefix string
 	// Transport holds all connection related info, i.e. equal TransportConfig means equal servers we talk to.
+	// Transport包含了所有连接相关的信息，同样的TransportConfig意味着和同样的servers进行通信
 	Transport TransportConfig
 	// Quorum indicates that whether read operations should be quorum-level consistent.
 	Quorum bool
@@ -63,6 +64,7 @@ type Config struct {
 	// converted to before persisted in etcd.
 	EncodeVersioner runtime.GroupVersioner
 	// Transformer allows the value to be transformed prior to persisting into etcd.
+	// Transformer允许value在持久化到etcd之前进行转换
 	Transformer value.Transformer
 
 	// CompactionInterval is an interval of requesting compaction from apiserver.

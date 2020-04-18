@@ -24,6 +24,7 @@ import (
 const GroupName = "restaurant.programming-kubernetes.info"
 
 // SchemeGroupVersion is group version used to register these objects
+// runtime.APIVersionInternal说明注册的是内部类型
 var SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: runtime.APIVersionInternal}
 
 // Kind takes an unqualified kind and returns back a Group qualified GroupKind
@@ -42,6 +43,7 @@ var (
 )
 
 // Adds the list of known types to the given scheme.
+// Adds增加一系列已知的类型到给定的scheme
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&Pizza{},

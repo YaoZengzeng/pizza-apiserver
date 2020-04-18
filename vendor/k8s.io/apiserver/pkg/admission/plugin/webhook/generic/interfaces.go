@@ -25,6 +25,7 @@ import (
 )
 
 // Source can list dynamic webhook plugins.
+// Source可以list动态的webhook plugins
 type Source interface {
 	Webhooks() []v1beta1.Webhook
 	HasSynced() bool
@@ -32,6 +33,7 @@ type Source interface {
 
 // VersionedAttributes is a wrapper around the original admission attributes, adding versioned
 // variants of the object and old object.
+// VersionedAttributes是一个对于original admission attributes的wrapper，增加versioned variant的object以及old object
 type VersionedAttributes struct {
 	admission.Attributes
 	VersionedOldObject runtime.Object
@@ -39,6 +41,7 @@ type VersionedAttributes struct {
 }
 
 // Dispatcher dispatches webhook call to a list of webhooks with admission attributes as argument.
+// Dispatcher分发webhook call到一系列的webhooks，将admission attributes作为参数
 type Dispatcher interface {
 	// Dispatch a request to the webhooks using the given webhooks. A non-nil error means the request is rejected.
 	Dispatch(ctx context.Context, a *VersionedAttributes, o admission.ObjectInterfaces, hooks []*v1beta1.Webhook) error

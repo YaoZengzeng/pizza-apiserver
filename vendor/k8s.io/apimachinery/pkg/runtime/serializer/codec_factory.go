@@ -80,6 +80,7 @@ func newSerializersForScheme(scheme *runtime.Scheme, mf json.MetaFactory) []seri
 
 // CodecFactory provides methods for retrieving codecs and serializers for specific
 // versions and content types.
+// CodecFactory提供了方法用于获取codec以及serializers用于特定的版本和content type
 type CodecFactory struct {
 	scheme      *runtime.Scheme
 	serializers []serializerType

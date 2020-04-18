@@ -53,6 +53,7 @@ import (
 )
 
 // Info about an API group.
+// 一个API group相关的信息
 type APIGroupInfo struct {
 	PrioritizedVersions []schema.GroupVersion
 	// Info about the resources in this group. It's a map from version to resource to the storage.
@@ -435,6 +436,7 @@ func (s *GenericAPIServer) InstallAPIGroups(apiGroupInfos ...*APIGroupInfo) erro
 }
 
 // Exposes the given api group in the API.
+// 在API暴露给定的api group
 func (s *GenericAPIServer) InstallAPIGroup(apiGroupInfo *APIGroupInfo) error {
 	return s.InstallAPIGroups(apiGroupInfo)
 }
@@ -473,6 +475,7 @@ func (s *GenericAPIServer) newAPIGroupVersion(apiGroupInfo *APIGroupInfo, groupV
 
 // NewDefaultAPIGroupInfo returns an APIGroupInfo stubbed with "normal" values
 // exposed for easier composition from other packages
+// NewDefaultAPIGroupInfo返回一个APIGroupInfo
 func NewDefaultAPIGroupInfo(group string, scheme *runtime.Scheme, parameterCodec runtime.ParameterCodec, codecs serializer.CodecFactory) APIGroupInfo {
 	return APIGroupInfo{
 		PrioritizedVersions:          scheme.PrioritizedVersionsForGroup(group),

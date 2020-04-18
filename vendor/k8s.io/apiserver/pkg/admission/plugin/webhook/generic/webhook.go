@@ -35,6 +35,7 @@ import (
 )
 
 // Webhook is an abstract admission plugin with all the infrastructure to define Admit or Validate on-top.
+// Webhook是一个抽象的admission plugin，所有的infrastructure用于定义在顶部定义Admit或者Validate
 type Webhook struct {
 	*admission.Handler
 
@@ -55,6 +56,7 @@ type sourceFactory func(f informers.SharedInformerFactory) Source
 type dispatcherFactory func(cm *webhook.ClientManager) Dispatcher
 
 // NewWebhook creates a new generic admission webhook.
+// NewWebhook创建一个新的通用的admission webhook
 func NewWebhook(handler *admission.Handler, configFile io.Reader, sourceFactory sourceFactory, dispatcherFactory dispatcherFactory) (*Webhook, error) {
 	kubeconfigFile, err := config.LoadConfig(configFile)
 	if err != nil {
@@ -78,6 +80,7 @@ func NewWebhook(handler *admission.Handler, configFile io.Reader, sourceFactory 
 		sourceFactory:    sourceFactory,
 		clientManager:    &cm,
 		namespaceMatcher: &namespace.Matcher{},
+		// 生成dispatcher
 		dispatcher:       dispatcherFactory(&cm),
 	}, nil
 }
@@ -105,6 +108,7 @@ func (a *Webhook) SetExternalKubeClientSet(client clientset.Interface) {
 func (a *Webhook) SetExternalKubeInformerFactory(f informers.SharedInformerFactory) {
 	namespaceInformer := f.Core().V1().Namespaces()
 	a.namespaceMatcher.NamespaceLister = namespaceInformer.Lister()
+	// hookSource能产生一系列的webhooks
 	a.hookSource = a.sourceFactory(f)
 	a.SetReadyFunc(func() bool {
 		return namespaceInformer.Informer().HasSynced() && a.hookSource.HasSynced()
@@ -150,12 +154,14 @@ func (a *Webhook) Dispatch(attr admission.Attributes, o admission.ObjectInterfac
 	if !a.WaitForReady() {
 		return admission.NewForbidden(attr, fmt.Errorf("not yet ready to handle request"))
 	}
+	// 获取相应的webhooks
 	hooks := a.hookSource.Webhooks()
 	// TODO: Figure out if adding one second timeout make sense here.
 	ctx := context.TODO()
 
 	var relevantHooks []*v1beta1.Webhook
 	for i := range hooks {
+		// 判断资源对象是否需要webhook
 		call, err := a.ShouldCallHook(&hooks[i], attr)
 		if err != nil {
 			return err
@@ -167,10 +173,12 @@ func (a *Webhook) Dispatch(attr admission.Attributes, o admission.ObjectInterfac
 
 	if len(relevantHooks) == 0 {
 		// no matching hooks
+		// 如果没有匹配的webhooks，直接返回
 		return nil
 	}
 
 	// convert the object to the external version before sending it to the webhook
+	// 在发送到webhook之前，将对象转换为external version
 	versionedAttr := VersionedAttributes{
 		Attributes: attr,
 	}

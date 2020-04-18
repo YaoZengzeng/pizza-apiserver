@@ -47,8 +47,10 @@ func init() {
 }
 
 // AdmissionOptions holds the admission options
+// AdmissionOptions包含了admission options的选项
 type AdmissionOptions struct {
 	// RecommendedPluginOrder holds an ordered list of plugin names we recommend to use by default
+	// RecommendedPluginOrder包含一系列的plugin names，我们建议默认使用
 	RecommendedPluginOrder []string
 	// DefaultOffPlugins is a set of plugin names that is disabled by default
 	DefaultOffPlugins sets.String
@@ -60,6 +62,7 @@ type AdmissionOptions struct {
 	// ConfigFile is the file path with admission control configuration.
 	ConfigFile string
 	// Plugins contains all registered plugins.
+	// Plugins包含所有注册的plugins
 	Plugins *admission.Plugins
 	// Decorators is a list of admission decorator to wrap around the admission plugins
 	Decorators admission.Decorators
@@ -105,11 +108,14 @@ func (a *AdmissionOptions) AddFlags(fs *pflag.FlagSet) {
 		"Comma-delimited list of admission plugins: "+strings.Join(a.Plugins.Registered(), ", ")+". "+
 		"The order of plugins in this flag does not matter.")
 	fs.StringVar(&a.ConfigFile, "admission-control-config-file", a.ConfigFile,
+		// admission control的配置文件
 		"File with admission control configuration.")
 }
 
 // ApplyTo adds the admission chain to the server configuration.
+// ApplyTo增加admission chain到server configuration
 // In case admission plugin names were not provided by a custer-admin they will be prepared from the recommended/default values.
+// 万一admission plugin names没有被cluster-admin提供，他们会被用于recommended/default values
 // In addition the method lazily initializes a generic plugin that is appended to the list of pluginInitializers
 // note this method uses:
 //  genericconfig.Authorizer
@@ -140,6 +146,7 @@ func (a *AdmissionOptions) ApplyTo(
 		return err
 	}
 	genericInitializer := initializer.New(clientset, informers, c.Authorization.Authorizer)
+	// 创建初始化链 
 	initializersChain := admission.PluginInitializers{}
 	pluginInitializers = append(pluginInitializers, genericInitializer)
 	initializersChain = append(initializersChain, pluginInitializers...)
@@ -201,6 +208,7 @@ func (a *AdmissionOptions) Validate() []error {
 // enabledPluginNames makes use of RecommendedPluginOrder, DefaultOffPlugins,
 // EnablePlugins, DisablePlugins fields
 // to prepare a list of ordered plugin names that are enabled.
+// enabledPluginNames准备了一系列需要enabled的插件名
 func (a *AdmissionOptions) enabledPluginNames() []string {
 	allOffPlugins := append(a.DefaultOffPlugins.List(), a.DisablePlugins...)
 	disabledPlugins := sets.NewString(allOffPlugins...)

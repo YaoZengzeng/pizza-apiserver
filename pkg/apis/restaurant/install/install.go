@@ -25,6 +25,7 @@ import (
 )
 
 // Install registers the API group and adds types to a scheme
+// Install注册API group以及增加types到scheme
 func Install(scheme *runtime.Scheme) {
 	utilruntime.Must(restaurant.AddToScheme(scheme))
 	utilruntime.Must(v1beta1.AddToScheme(scheme))

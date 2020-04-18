@@ -26,6 +26,7 @@ import (
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // AdmissionReview describes an admission review request/response.
+// AdmissionReview描述一个admission review的request/response
 type AdmissionReview struct {
 	metav1.TypeMeta `json:",inline"`
 	// Request describes the attributes for the admission request.
@@ -78,20 +79,24 @@ type AdmissionRequest struct {
 }
 
 // AdmissionResponse describes an admission response.
+// AdmissionResponse描述了一个admission response
 type AdmissionResponse struct {
 	// UID is an identifier for the individual request/response.
 	// This should be copied over from the corresponding AdmissionRequest.
 	UID types.UID `json:"uid" protobuf:"bytes,1,opt,name=uid"`
 
 	// Allowed indicates whether or not the admission request was permitted.
+	// Allowed表明admission request是否被允许
 	Allowed bool `json:"allowed" protobuf:"varint,2,opt,name=allowed"`
 
 	// Result contains extra details into why an admission request was denied.
 	// This field IS NOT consulted in any way if "Allowed" is "true".
+	// Result包含了额外的数据用于表示为什么admission request被拒绝
 	// +optional
 	Result *metav1.Status `json:"status,omitempty" protobuf:"bytes,3,opt,name=status"`
 
 	// The patch body. Currently we only support "JSONPatch" which implements RFC 6902.
+	// Patch body，当前只支持"JSONPatch"
 	// +optional
 	Patch []byte `json:"patch,omitempty" protobuf:"bytes,4,opt,name=patch"`
 
@@ -103,6 +108,8 @@ type AdmissionResponse struct {
 	// MutatingAdmissionWebhook and ValidatingAdmissionWebhook admission controller will prefix the keys with
 	// admission webhook name (e.g. imagepolicy.example.com/error=image-blacklisted). AuditAnnotations will be provided by
 	// the admission webhook to add additional context to the audit log for this request.
+	// AuditAnnotations是一个由远程的admission controller设置的非结构化的key-value
+	// MutatingAdmissionWebhook以及ValidatingAdmissionWebhook admission controller会增加admission webhook name的前缀
 	// +optional
 	AuditAnnotations map[string]string `json:"auditAnnotations,omitempty" protobuf:"bytes,6,opt,name=auditAnnotations"`
 }

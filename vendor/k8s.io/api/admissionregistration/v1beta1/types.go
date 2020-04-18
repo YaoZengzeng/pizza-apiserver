@@ -81,6 +81,7 @@ const (
 	// Ignore means that an error calling the webhook is ignored.
 	Ignore FailurePolicyType = "Ignore"
 	// Fail means that an error calling the webhook causes the admission to fail.
+	// Fail意味着调用webhook失败就会导致admission fail
 	Fail FailurePolicyType = "Fail"
 )
 
@@ -135,6 +136,7 @@ type ValidatingWebhookConfigurationList struct {
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 // MutatingWebhookConfiguration describes the configuration of and admission webhook that accept or reject and may change the object.
+// MutatingWebhookConfiguration描述了一个admission webhook的资源配置，它用于接收或者拒绝甚至可能改变对象
 type MutatingWebhookConfiguration struct {
 	metav1.TypeMeta `json:",inline"`
 	// Standard object metadata; More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata.
@@ -161,6 +163,7 @@ type MutatingWebhookConfigurationList struct {
 }
 
 // Webhook describes an admission webhook and the resources and operations it applies to.
+// Webhook描述了一个admission webhook以及应用其上的资源和操作
 type Webhook struct {
 	// The name of the admission webhook.
 	// Name should be fully qualified, e.g., imagepolicy.kubernetes.io, where
@@ -244,6 +247,7 @@ type Webhook struct {
 	// TimeoutSeconds specifies the timeout for this webhook. After the timeout passes,
 	// the webhook call will be ignored or the API call will fail based on the
 	// failure policy.
+	// TimeoutSeconds指定了webhook的超时时间，在timeout过后，webhook会被忽略或者fail，基于failure policy
 	// The timeout value must be between 1 and 30 seconds.
 	// Default to 30 seconds.
 	// +optional
@@ -329,6 +333,7 @@ type WebhookClientConfig struct {
 
 	// `caBundle` is a PEM encoded CA bundle which will be used to validate the webhook's server certificate.
 	// If unspecified, system trust roots on the apiserver are used.
+	// 如果未指定，system信任apiserver使用的根证书
 	// +optional
 	CABundle []byte `json:"caBundle,omitempty" protobuf:"bytes,2,opt,name=caBundle"`
 }

@@ -23,6 +23,7 @@ import (
 )
 
 // ServiceResolver knows how to convert a service reference into an actual location.
+// ServiceResolver知道如何将一个service reference转换为真正的location
 type ServiceResolver interface {
 	ResolveEndpoint(namespace, name string) (*url.URL, error)
 }
@@ -35,6 +36,7 @@ func NewDefaultServiceResolver() ServiceResolver {
 }
 
 // ResolveEndpoint constructs a service URL from a given namespace and name
+// ResolveEndpoint从给定的namespace和name构建一个service URL，默认使用HTTPS scheme
 // note that the name and namespace are required and by default all created addresses use HTTPS scheme.
 // for example:
 //  name=ross namespace=andromeda resolves to https://ross.andromeda.svc:443

@@ -24,6 +24,7 @@ import (
 )
 
 // REST implements a RESTStorage for API services against etcd
+// REST实现了基于etcd的RESTStorage
 type REST struct {
 	*genericregistry.Store
 }
@@ -33,6 +34,7 @@ type REST struct {
 // a wrapper for custom registries.
 func RESTInPeace(storage rest.StandardStorage, err error) rest.StandardStorage {
 	if err != nil {
+		// 如果不能创建一个资源的REST storage就直接panic
 		err = fmt.Errorf("unable to create REST storage for a resource due to %v, will die", err)
 		panic(err)
 	}

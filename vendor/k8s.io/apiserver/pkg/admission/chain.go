@@ -18,6 +18,7 @@ package admission
 
 // chainAdmissionHandler is an instance of admission.NamedHandler that performs admission control using
 // a chain of admission handlers
+// 用一系列的admission handlers进行admission control
 type chainAdmissionHandler []Interface
 
 // NewChainHandler creates a new chain handler from an array of handlers. Used for testing.
@@ -45,9 +46,11 @@ func (admissionHandler chainAdmissionHandler) Admit(a Attributes, o ObjectInterf
 func (admissionHandler chainAdmissionHandler) Validate(a Attributes, o ObjectInterfaces) error {
 	for _, handler := range admissionHandler {
 		if !handler.Handles(a.GetOperation()) {
+			// 如果不能操作，就直接跳过
 			continue
 		}
 		if validator, ok := handler.(ValidationInterface); ok {
+			// 如果实现了ValidationInterface，则调用validator进行处理
 			err := validator.Validate(a, o)
 			if err != nil {
 				return err
@@ -58,6 +61,7 @@ func (admissionHandler chainAdmissionHandler) Validate(a Attributes, o ObjectInt
 }
 
 // Handles will return true if any of the handlers handles the given operation
+// Handles会返回true，如果任何的handlers处理给定的操作
 func (admissionHandler chainAdmissionHandler) Handles(operation Operation) bool {
 	for _, handler := range admissionHandler {
 		if handler.Handles(operation) {

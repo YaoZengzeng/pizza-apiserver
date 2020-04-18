@@ -45,6 +45,7 @@ type ClientConfig struct {
 }
 
 // ClientConfigService defines service discovery parameters of the webhook.
+// ClientConfigService定义webhook的service discovery参数
 type ClientConfigService struct {
 	Name      string
 	Namespace string
@@ -53,6 +54,7 @@ type ClientConfigService struct {
 
 // ClientManager builds REST clients to talk to webhooks. It caches the clients
 // to avoid duplicate creation.
+// ClientManager构建REST clients用于和webhooks进行交互，它缓存clients来防止重复创建
 type ClientManager struct {
 	authInfoResolver     AuthenticationInfoResolver
 	serviceResolver      ServiceResolver
@@ -115,6 +117,7 @@ func (cm *ClientManager) Validate() error {
 
 // HookClient get a RESTClient from the cache, or constructs one based on the
 // webhook configuration.
+// HookClient从cache中获取一个RESTClient，或者构建一个，基于webhook configuration
 func (cm *ClientManager) HookClient(cc ClientConfig) (*rest.RESTClient, error) {
 	ccWithNoName := cc
 	ccWithNoName.Name = ""
@@ -131,6 +134,7 @@ func (cm *ClientManager) HookClient(cc ClientConfig) (*rest.RESTClient, error) {
 		if len(cfg.TLSClientConfig.CAData) > 0 {
 			cfg.TLSClientConfig.CAData = append(cfg.TLSClientConfig.CAData, '\n')
 		}
+		// 设置CA bundle
 		cfg.TLSClientConfig.CAData = append(cfg.TLSClientConfig.CAData, cc.CABundle...)
 
 		cfg.ContentConfig.NegotiatedSerializer = cm.negotiatedSerializer

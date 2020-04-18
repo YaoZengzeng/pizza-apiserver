@@ -33,6 +33,8 @@ import (
 // registry for converting group, version, and kind information to and from Go
 // schemas, and mappings between Go schemas of different versions. A scheme is the
 // foundation for a versioned API and versioned configuration over time.
+// Scheme定义了方法用于序列化以及反序列化API对象，一个类型registry用于将group, version以及
+// kind信息和Go schemas相互转化，并且在不同版本的Go schemas之间互相转化
 //
 // In a Scheme, a Type is a particular Go struct, a Version is a point-in-time
 // identifier for a particular representation of that Type (typically backwards
@@ -71,6 +73,7 @@ type Scheme struct {
 
 	// converter stores all registered conversion functions. It also has
 	// default converting behavior.
+	// converter存储所有注册的conversion functions，它有着默认的default converting behaviour
 	converter *conversion.Converter
 
 	// versionPriority is a map of groups to ordered lists of versions for those groups indicating the
@@ -617,6 +620,7 @@ func setTargetKind(obj Object, kind schema.GroupVersionKind) {
 
 // SetVersionPriority allows specifying a precise order of priority. All specified versions must be in the same group,
 // and the specified order overwrites any previously specified order for this group
+// SetVersionPriority允许指定一个具体的优先级顺序，所有特定的版本都必须在同一个group中，后面的优先级高于前面的
 func (s *Scheme) SetVersionPriority(versions ...schema.GroupVersion) error {
 	groups := sets.String{}
 	order := []string{}

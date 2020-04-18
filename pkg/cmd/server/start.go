@@ -43,6 +43,7 @@ type CustomServerOptions struct {
 	SharedInformerFactory informers.SharedInformerFactory
 }
 
+// 用默认值设置一个aggregated custom API server所需的一切
 func NewCustomServerOptions() *CustomServerOptions {
 	o := &CustomServerOptions{
 		RecommendedOptions: genericoptions.NewRecommendedOptions(
@@ -63,12 +64,14 @@ func NewCommandStartCustomServer(defaults *CustomServerOptions, stopCh <-chan st
 		Short: "Launch a custom API server",
 		Long:  "Launch a custom API server",
 		RunE: func(c *cobra.Command, args []string) error {
+			// 完善config并且运行
 			if err := o.Complete(); err != nil {
 				return err
 			}
 			if err := o.Validate(); err != nil {
 				return err
 			}
+			// 运行API Server
 			if err := o.Run(stopCh); err != nil {
 				return err
 			}
@@ -90,9 +93,12 @@ func (o CustomServerOptions) Validate() error {
 
 func (o *CustomServerOptions) Complete() error {
 	// register admission plugins
+	// 注册admission plugins
+	// RecommendedOptions已经用通用的admission plug-ins填充过了
 	pizzatoppings.Register(o.RecommendedOptions.Admission.Plugins)
 
 	// add admisison plugins to the RecommendedPluginOrder
+	// 增加admission plugins到RecommendedPluginOrder
 	o.RecommendedOptions.Admission.RecommendedPluginOrder = append(o.RecommendedOptions.Admission.RecommendedPluginOrder, "PizzaToppings")
 
 	return nil
@@ -100,21 +106,27 @@ func (o *CustomServerOptions) Complete() error {
 
 func (o *CustomServerOptions) Config() (*apiserver.Config, error) {
 	// TODO have a "real" external address
+	// 创建自签名的certificates，以防用户没有通过flag传入预生成的certificates
 	if err := o.RecommendedOptions.SecureServing.MaybeDefaultWithSelfSignedCerts("localhost", nil, []net.IP{net.ParseIP("127.0.0.1")}); err != nil {
 		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
 	}
 
 	o.RecommendedOptions.ExtraAdmissionInitializers = func(c *genericapiserver.RecommendedConfig) ([]admission.PluginInitializer, error) {
+		// 设置client
 		client, err := clientset.NewForConfig(c.LoopbackClientConfig)
 		if err != nil {
 			return nil, err
 		}
+		// 直接构建informer factory
 		informerFactory := informers.NewSharedInformerFactory(client, c.LoopbackClientConfig.Timeout)
 		o.SharedInformerFactory = informerFactory
+		// 所有的plugin都会调用这个PluginInitializer?
 		return []admission.PluginInitializer{custominitializer.New(informerFactory)}, nil
 	}
 
+	// 创建server config
 	serverConfig := genericapiserver.NewRecommendedConfig(apiserver.Codecs)
+	// 根据flag以及其他自定义的选项应用RecommendedOptions
 	if err := o.RecommendedOptions.ApplyTo(serverConfig); err != nil {
 		return nil, err
 	}
@@ -132,16 +144,20 @@ func (o CustomServerOptions) Run(stopCh <-chan struct{}) error {
 		return err
 	}
 
+	// 将completed config转换为一个CustomServer运行时
 	server, err := config.Complete().New()
 	if err != nil {
 		return err
 	}
 
 	server.GenericAPIServer.AddPostStartHook("start-pizza-apiserver-informers", func(context genericapiserver.PostStartHookContext) error {
+		// 启动informer
 		config.GenericConfig.SharedInformerFactory.Start(context.StopCh)
 		o.SharedInformerFactory.Start(context.StopCh)
 		return nil
 	})
 
+	// 运行API server
+	// PrepareRun()调用连接了OpenAPI标准，可能会做一些其他的post-API installation操作
 	return server.GenericAPIServer.PrepareRun().Run(stopCh)
 }

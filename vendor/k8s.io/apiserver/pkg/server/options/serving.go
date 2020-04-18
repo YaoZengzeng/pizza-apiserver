@@ -53,6 +53,7 @@ type SecureServingOptions struct {
 	Listener net.Listener
 
 	// ServerCert is the TLS cert info for serving secure traffic
+	// ServerCert是TLS cert info用于进行secure traffic服务
 	ServerCert GeneratableKeyCert
 	// SNICertKeys are named CertKeys for serving secure traffic with SNI support.
 	SNICertKeys []cliflag.NamedCertKey

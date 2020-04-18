@@ -16,4 +16,5 @@ limitations under the License.
 
 // Package validating makes calls to validating (i.e., non-mutating) webhooks
 // during the admission process.
+// validating包在admission process过程中用于调用validating webhooks
 package validating // import "k8s.io/apiserver/pkg/admission/plugin/webhook/validating"

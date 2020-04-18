@@ -39,6 +39,8 @@ import (
 type RequestHeaderAuthenticationOptions struct {
 	// ClientCAFile is the root certificate bundle to verify client certificates on incoming requests
 	// before trusting usernames in headers.
+	// ClientCAFile是root certificates bundle用于确认incoming requests的client certificates
+	// 在信任header里的usernames之前
 	ClientCAFile string
 
 	UsernameHeaders     []string
@@ -103,6 +105,8 @@ func (s *ClientCertAuthenticationOptions) AddFlags(fs *pflag.FlagSet) {
 // DelegatingAuthenticationOptions provides an easy way for composing API servers to delegate their authentication to
 // the root kube API server.  The API federator will act as
 // a front proxy and direction connections will be able to delegate to the core kube API server
+// DelegatingAuthenticationOptions提供了一个简单的方法用于聚合API servers，从而允许委托认证到root kube API Server
+// The API federator会作为一个front proxy并且direction connections会被用于委托到core kube API server
 type DelegatingAuthenticationOptions struct {
 	// RemoteKubeConfigFile is the file to use to connect to a "normal" kube API server which hosts the
 	// TokenAccessReview.authentication.k8s.io endpoint for checking tokens.
@@ -153,6 +157,7 @@ func (s *DelegatingAuthenticationOptions) AddFlags(fs *pflag.FlagSet) {
 		optionalKubeConfigSentence = " This is optional. If empty, all token requests are considered to be anonymous and no client CA is looked up in the cluster."
 	}
 	fs.StringVar(&s.RemoteKubeConfigFile, "authentication-kubeconfig", s.RemoteKubeConfigFile, ""+
+		// kubeconfig文件指向'core' kubernetes server，有着足够的权限用于创建tokenaccessreviews.authentication.k8s.io
 		"kubeconfig file pointing at the 'core' kubernetes server with enough rights to create "+
 		"tokenaccessreviews.authentication.k8s.io."+optionalKubeConfigSentence)
 

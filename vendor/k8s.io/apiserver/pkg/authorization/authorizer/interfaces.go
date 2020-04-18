@@ -79,6 +79,7 @@ func (f AuthorizerFunc) Authorize(a Attributes) (Decision, string, error) {
 // RuleResolver provides a mechanism for resolving the list of rules that apply to a given user within a namespace.
 type RuleResolver interface {
 	// RulesFor get the list of cluster wide rules, the list of rules in the specific namespace, incomplete status and errors.
+	// RulesFor获取了一系列集群级别的rules，特定namespace的rules
 	RulesFor(user user.Info, namespace string) ([]ResourceRuleInfo, []NonResourceRuleInfo, bool, error)
 }
 

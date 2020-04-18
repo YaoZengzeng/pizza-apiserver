@@ -48,6 +48,7 @@ type mutatingDispatcher struct {
 }
 
 func newMutatingDispatcher(p *Plugin) func(cm *webhook.ClientManager) generic.Dispatcher {
+	// 传入一个webhook client manager就能生成一个Dispatcher
 	return func(cm *webhook.ClientManager) generic.Dispatcher {
 		return &mutatingDispatcher{cm, p}
 	}
@@ -58,6 +59,7 @@ var _ generic.Dispatcher = &mutatingDispatcher{}
 func (a *mutatingDispatcher) Dispatch(ctx context.Context, attr *generic.VersionedAttributes, o admission.ObjectInterfaces, relevantHooks []*v1beta1.Webhook) error {
 	for _, hook := range relevantHooks {
 		t := time.Now()
+		// 调用相应的webhook
 		err := a.callAttrMutatingHook(ctx, hook, attr, o)
 		admissionmetrics.Metrics.ObserveWebhook(time.Since(t), err != nil, attr.Attributes, "admit", hook.Name)
 		if err == nil {
@@ -77,6 +79,7 @@ func (a *mutatingDispatcher) Dispatch(ctx context.Context, attr *generic.Version
 	}
 
 	// convert attr.VersionedObject to the internal version in the underlying admission.Attributes
+	// 将attr.VersionedObject转换为internal version，基于底层的admission.Attributes
 	if attr.VersionedObject != nil {
 		return o.GetObjectConvertor().Convert(attr.VersionedObject, attr.Attributes.GetObject(), nil)
 	}
@@ -84,6 +87,7 @@ func (a *mutatingDispatcher) Dispatch(ctx context.Context, attr *generic.Version
 }
 
 // note that callAttrMutatingHook updates attr
+// callAttrMutatingHook真正执行webhook
 func (a *mutatingDispatcher) callAttrMutatingHook(ctx context.Context, h *v1beta1.Webhook, attr *generic.VersionedAttributes, o admission.ObjectInterfaces) error {
 	if attr.IsDryRun() {
 		if h.SideEffects == nil {
@@ -121,12 +125,14 @@ func (a *mutatingDispatcher) callAttrMutatingHook(ctx context.Context, h *v1beta
 
 	for k, v := range response.Response.AuditAnnotations {
 		key := h.Name + "/" + k
+		// 增加attr的Annotations
 		if err := attr.AddAnnotation(key, v); err != nil {
 			klog.Warningf("Failed to set admission audit annotation %s to %s for mutating webhook %s: %v", key, v, h.Name, err)
 		}
 	}
 
 	if !response.Response.Allowed {
+		// 如果被拒绝，直接返回nil
 		return webhookerrors.ToStatusErr(h.Name, response.Response.Result)
 	}
 
@@ -147,11 +153,13 @@ func (a *mutatingDispatcher) callAttrMutatingHook(ctx context.Context, h *v1beta
 		return apierrors.NewInternalError(fmt.Errorf("admission webhook %q attempted to modify the object, which is not supported for this operation", h.Name))
 	}
 
+	// 将资源的对象转换为资源对象
 	jsonSerializer := json.NewSerializer(json.DefaultMetaFactory, o.GetObjectCreater(), o.GetObjectTyper(), false)
 	objJS, err := runtime.Encode(jsonSerializer, attr.VersionedObject)
 	if err != nil {
 		return apierrors.NewInternalError(err)
 	}
+	// 增加patchObj
 	patchedJS, err := patchObj.Apply(objJS)
 	if err != nil {
 		return apierrors.NewInternalError(err)
@@ -161,6 +169,7 @@ func (a *mutatingDispatcher) callAttrMutatingHook(ctx context.Context, h *v1beta
 	if _, ok := attr.VersionedObject.(*unstructured.Unstructured); ok {
 		// Custom Resources don't have corresponding Go struct's.
 		// They are represented as Unstructured.
+		// CR没有对应的Go struct，它们用Unstructured表示
 		newVersionedObject = &unstructured.Unstructured{}
 	} else {
 		newVersionedObject, err = o.GetObjectCreater().New(attr.GetKind())
@@ -170,6 +179,7 @@ func (a *mutatingDispatcher) callAttrMutatingHook(ctx context.Context, h *v1beta
 	}
 	// TODO: if we have multiple mutating webhooks, we can remember the json
 	// instead of encoding and decoding for each one.
+	// 将patch完的资源对象再转换回来
 	if _, _, err := jsonSerializer.Decode(patchedJS, nil, newVersionedObject); err != nil {
 		return apierrors.NewInternalError(err)
 	}

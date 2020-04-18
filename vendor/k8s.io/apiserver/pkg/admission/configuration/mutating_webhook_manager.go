@@ -31,6 +31,7 @@ import (
 )
 
 // mutatingWebhookConfigurationManager collects the mutating webhook objects so that they can be called.
+// mutatingWebhookConfigurationManager收集mutating webhook objects，因此它们可以被调用
 type mutatingWebhookConfigurationManager struct {
 	configuration *atomic.Value
 	lister        admissionregistrationlisters.MutatingWebhookConfigurationLister
@@ -61,6 +62,7 @@ func NewMutatingWebhookConfigurationManager(f informers.SharedInformerFactory) g
 }
 
 // Webhooks returns the merged MutatingWebhookConfiguration.
+// Webhooks返回合并了的MutatingWebhookConfiguration
 func (m *mutatingWebhookConfigurationManager) Webhooks() []v1beta1.Webhook {
 	return m.configuration.Load().(*v1beta1.MutatingWebhookConfiguration).Webhooks
 }
@@ -70,6 +72,7 @@ func (m *mutatingWebhookConfigurationManager) HasSynced() bool {
 }
 
 func (m *mutatingWebhookConfigurationManager) updateConfiguration() {
+	// 每次有更新，就获取所有的configurations并调用mergeMutatingWebhookConfigurations进行合并存储
 	configurations, err := m.lister.List(labels.Everything())
 	if err != nil {
 		utilruntime.HandleError(fmt.Errorf("error updating configuration: %v", err))

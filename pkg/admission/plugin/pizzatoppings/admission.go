@@ -31,6 +31,7 @@ import (
 
 // Register registers a plugin
 func Register(plugins *admission.Plugins) {
+	// Register用于注册一个plugin
 	plugins.Register("PizzaToppings", func(config io.Reader) (admission.Interface, error) {
 		return New()
 	})
@@ -48,6 +49,7 @@ var _ = admission.ValidationInterface(&PizzaToppingsPlugin{})
 // In addition checks that the toppings are known.
 func (d *PizzaToppingsPlugin) Validate(a admission.Attributes, _ admission.ObjectInterfaces) error {
 	// we are only interested in pizzas
+	// 首先检查GroupVersionKind
 	if a.GetKind().GroupKind() != restaurant.Kind("Pizza") {
 		return nil
 	}
@@ -72,6 +74,7 @@ func (d *PizzaToppingsPlugin) Validate(a admission.Attributes, _ admission.Objec
 
 // SetRestaurantInformerFactory gets Lister from SharedInformerFactory.
 // The lister knows how to lists Toppings.
+// SetRestaurantInformerFactory从SharedInformerFactory获取Lister，lister知道如何lists Toppings
 func (d *PizzaToppingsPlugin) SetRestaurantInformerFactory(f informers.SharedInformerFactory) {
 	d.toppingLister = f.Restaurant().V1alpha1().Toppings().Lister()
 	d.SetReadyFunc(f.Restaurant().V1alpha1().Toppings().Informer().HasSynced)
@@ -86,6 +89,7 @@ func (d *PizzaToppingsPlugin) ValidateInitialization() error {
 }
 
 // New creates a new ban pizza topping admission plugin
+// New创建一个新的admission plugin
 func New() (*PizzaToppingsPlugin, error) {
 	return &PizzaToppingsPlugin{
 		Handler: admission.NewHandler(admission.Create, admission.Update),

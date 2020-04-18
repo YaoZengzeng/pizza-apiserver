@@ -30,9 +30,11 @@ import (
 )
 
 // Factory is a function that returns an Interface for admission decisions.
+// Factory是一个函数，返回一个Interface用于admission decisions
 // The config parameter provides an io.Reader handler to the factory in
 // order to load specific configurations. If no configuration is provided
 // the parameter is nil.
+// config参数提供了一个io.Reader handler给factory，用于特定的配置
 type Factory func(config io.Reader) (Interface, error)
 
 type Plugins struct {
@@ -69,6 +71,7 @@ func (ps *Plugins) Registered() []string {
 
 // Register registers a plugin Factory by name. This
 // is expected to happen during app startup.
+// Register用name注册一个plugin Factory，这期望在应用启动的时候发生
 func (ps *Plugins) Register(name string, plugin Factory) {
 	ps.lock.Lock()
 	defer ps.lock.Unlock()
@@ -125,16 +128,19 @@ func splitStream(config io.Reader) (io.Reader, io.Reader, error) {
 
 // NewFromPlugins returns an admission.Interface that will enforce admission control decisions of all
 // the given plugins.
+// NewFromPlugins返回一个admission.Interface，强制执行所有给定插件的admission control decisions
 func (ps *Plugins) NewFromPlugins(pluginNames []string, configProvider ConfigProvider, pluginInitializer PluginInitializer, decorator Decorator) (Interface, error) {
 	handlers := []Interface{}
 	mutationPlugins := []string{}
 	validationPlugins := []string{}
 	for _, pluginName := range pluginNames {
+		// 获取相应插件的配置
 		pluginConfig, err := configProvider.ConfigFor(pluginName)
 		if err != nil {
 			return nil, err
 		}
 
+		// 初始化plugin
 		plugin, err := ps.InitPlugin(pluginName, pluginConfig, pluginInitializer)
 		if err != nil {
 			return nil, err
@@ -154,6 +160,7 @@ func (ps *Plugins) NewFromPlugins(pluginNames []string, configProvider ConfigPro
 			}
 		}
 	}
+	// 载入一系列的plugins
 	if len(mutationPlugins) != 0 {
 		klog.Infof("Loaded %d mutating admission controller(s) successfully in the following order: %s.", len(mutationPlugins), strings.Join(mutationPlugins, ","))
 	}
@@ -164,6 +171,7 @@ func (ps *Plugins) NewFromPlugins(pluginNames []string, configProvider ConfigPro
 }
 
 // InitPlugin creates an instance of the named interface.
+// InitPlugin创建一个named interface的实例
 func (ps *Plugins) InitPlugin(name string, config io.Reader, pluginInitializer PluginInitializer) (Interface, error) {
 	if name == "" {
 		klog.Info("No admission plugin specified.")
@@ -178,6 +186,7 @@ func (ps *Plugins) InitPlugin(name string, config io.Reader, pluginInitializer P
 		return nil, fmt.Errorf("unknown admission plugin: %s", name)
 	}
 
+	// 对plugins进行初始化
 	pluginInitializer.Initialize(plugin)
 	// ensure that plugins have been properly initialized
 	if err := ValidateInitialization(plugin); err != nil {
@@ -189,6 +198,7 @@ func (ps *Plugins) InitPlugin(name string, config io.Reader, pluginInitializer P
 
 // ValidateInitialization will call the InitializationValidate function in each plugin if they implement
 // the InitializationValidator interface.
+// ValidateInitialization会对每个plugin调用InitializationValidate函数，如果他们实现了InitializationValidator接口的话
 func ValidateInitialization(plugin Interface) error {
 	if validater, ok := plugin.(InitializationValidator); ok {
 		err := validater.ValidateInitialization()

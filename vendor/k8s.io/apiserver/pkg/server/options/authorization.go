@@ -96,6 +96,7 @@ func (s *DelegatingAuthorizationOptions) AddFlags(fs *pflag.FlagSet) {
 		optionalKubeConfigSentence = " This is optional. If empty, all requests not skipped by authorization are forbidden."
 	}
 	fs.StringVar(&s.RemoteKubeConfigFile, "authorization-kubeconfig", s.RemoteKubeConfigFile,
+		// kubeconfig文件指向'core' kubernetes server，从而有着足够的权限用于创建subjectaccessreviews.authorization.k8s.io
 		"kubeconfig file pointing at the 'core' kubernetes server with enough rights to create "+
 			"subjectaccessreviews.authorization.k8s.io."+optionalKubeConfigSentence)
 

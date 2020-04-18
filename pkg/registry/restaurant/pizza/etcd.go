@@ -39,6 +39,7 @@ func NewREST(scheme *runtime.Scheme, optsGetter generic.RESTOptionsGetter) (*reg
 		DeleteStrategy: strategy,
 	}
 	options := &generic.StoreOptions{RESTOptions: optsGetter, AttrFunc: GetAttrs}
+	// 用默认配置填充
 	if err := store.CompleteWithOptions(options); err != nil {
 		return nil, err
 	}

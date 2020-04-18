@@ -15,4 +15,5 @@ limitations under the License.
 */
 
 // Package registry contains the generic implementation of the storage and system logic.
+// registry包含了存储以及system logic的通用实现
 package registry // import "k8s.io/apiserver/pkg/registry"

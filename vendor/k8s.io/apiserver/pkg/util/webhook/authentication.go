@@ -66,6 +66,7 @@ func NewDefaultAuthenticationInfoResolverWrapper(
 
 // AuthenticationInfoResolver builds rest.Config base on the server or service
 // name and service namespace.
+// AuthenticationInfoResolver构建rest.Config基于server或者service name以及service namespace
 type AuthenticationInfoResolver interface {
 	// ClientConfigFor builds rest.Config based on the server.
 	ClientConfigFor(server string) (*rest.Config, error)
@@ -97,6 +98,8 @@ type defaultAuthenticationInfoResolver struct {
 // NewDefaultAuthenticationInfoResolver generates an AuthenticationInfoResolver
 // that builds rest.Config based on the kubeconfig file. kubeconfigFile is the
 // path to the kubeconfig.
+// NewDefaultAuthenticationInfoResolver产生一个AuthenticationInfoResolver用于构建rest.Config，基于
+// kubeconfig file
 func NewDefaultAuthenticationInfoResolver(kubeconfigFile string) (AuthenticationInfoResolver, error) {
 	if len(kubeconfigFile) == 0 {
 		return &defaultAuthenticationInfoResolver{}, nil

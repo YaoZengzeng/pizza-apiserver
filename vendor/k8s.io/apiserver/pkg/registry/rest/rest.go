@@ -50,6 +50,7 @@ import (
 //    UPDATE: Update -> NamedUpdater
 
 // Storage is a generic interface for RESTful storage services.
+// Storage是一个通用的接口用于RESTful的storage services
 // Resources which are exported to the RESTful API of apiserver need to implement this interface. It is expected
 // that objects may implement any of the below interfaces.
 type Storage interface {
@@ -171,6 +172,7 @@ type CollectionDeleter interface {
 }
 
 // Creater is an object that can create an instance of a RESTful object.
+// Creater是一个对象，能够创建一个RESTful对象的实例
 type Creater interface {
 	// New returns an empty object that can be used with Create after request data has been put into it.
 	// This object must be a pointer type for use with Codec.DecodeInto([]byte, runtime.Object)
@@ -265,6 +267,7 @@ type Watcher interface {
 
 // StandardStorage is an interface covering the common verbs. Provided for testing whether a
 // resource satisfies the normal storage methods. Use Storage when passing opaque storage objects.
+// StardardStorage是覆盖了公共的verbs的一个接口
 type StandardStorage interface {
 	Getter
 	Lister

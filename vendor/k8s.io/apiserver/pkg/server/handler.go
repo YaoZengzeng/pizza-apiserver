@@ -93,6 +93,7 @@ func NewAPIServerHandler(name string, s runtime.NegotiatedSerializer, handlerCha
 	}
 
 	return &APIServerHandler{
+		// 直接构建handler chain
 		FullHandlerChain:   handlerChainBuilder(director),
 		GoRestfulContainer: gorestfulContainer,
 		NonGoRestfulMux:    nonGoRestfulMux,

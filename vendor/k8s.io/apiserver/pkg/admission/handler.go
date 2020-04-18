@@ -45,6 +45,7 @@ func (h *Handler) Handles(operation Operation) bool {
 
 // NewHandler creates a new base handler that handles the passed
 // in operations
+// NewHandler创建一个base handler用于处理传入的operations
 func NewHandler(ops ...Operation) *Handler {
 	operations := sets.NewString()
 	for _, op := range ops {

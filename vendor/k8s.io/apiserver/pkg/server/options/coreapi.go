@@ -29,9 +29,12 @@ import (
 )
 
 // CoreAPIOptions contains options to configure the connection to a core API Kubernetes apiserver.
+// CoreAPIOptions包含选项用于配置到core API Kubernetes apiserver的连接
 type CoreAPIOptions struct {
 	// CoreAPIKubeconfigPath is a filename for a kubeconfig file to contact the core API server with.
 	// If it is not set, the in cluster config is used.
+	// CoreAPIKubeconfigPath是一个到kubeconfig的文件名，用于连接到core API server
+	// 如果没有设置，就使用in cluster config
 	CoreAPIKubeconfigPath string
 }
 

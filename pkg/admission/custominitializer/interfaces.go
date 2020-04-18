@@ -23,6 +23,7 @@ import (
 )
 
 // WantsRestaurantInformerFactory defines a function which sets InformerFactory for admission plugins that need it
+// WantsRestaurantInformerFactory定义了函数，它能设置InformerFactory，为需要它的admission plugins
 type WantsRestaurantInformerFactory interface {
 	SetRestaurantInformerFactory(informers.SharedInformerFactory)
 	admission.InitializationValidator
